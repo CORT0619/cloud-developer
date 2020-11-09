@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+const fs = require('fs');
+const path = require('path');
 
 (async () => {
 
@@ -26,6 +28,32 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //    image_url: URL of a publicly accessible image
   // RETURNS
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
+
+  app.get('/filteredimage?:image_url', async (request, response) => {
+    const url = request.query.image_url;
+    if (!url) {
+      response.send('url required!');
+    }
+
+    if (url) {
+      const image = await filterImageFromURL(url);
+      await response.sendFile(image);
+      
+      setTimeout(() => {
+        const fileList: Array<any> = [];
+        const filePath = path.join(__dirname, 'util', 'tmp');
+        fs.readdir(filePath, async (err:any, files:any) => {
+          if (err) console.log('error reading files ', err);
+          files.forEach((file:any) => {
+            fileList.push(`${path.join(__dirname, 'util', 'tmp')}/${file}`);
+          });
+          await deleteLocalFiles(fileList);
+        });
+      }, 5000);
+    }
+
+
+  });
 
   /**************************************************************************** */
 
