@@ -32,12 +32,12 @@ const path = require('path');
   app.get('/filteredimage?:image_url', async (request, response) => {
     const url = request.query.image_url;
     if (!url) {
-      response.send('url required!');
+      response.status(400).send('url required!');
     }
 
     if (url) {
       const image = await filterImageFromURL(url);
-      await response.sendFile(image);
+      await response.status(200).sendFile(image);
       
       setTimeout(() => {
         const fileList: Array<any> = [];
@@ -51,8 +51,6 @@ const path = require('path');
         });
       }, 5000);
     }
-
-
   });
 
   /**************************************************************************** */
